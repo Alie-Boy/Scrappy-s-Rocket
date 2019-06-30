@@ -7,27 +7,49 @@ public class RocketMovement : MonoBehaviour
 {
 
 	Rigidbody rigidBody;
-	public float TurnRate = 50.0f;
-	public float Force = 50.0f;
+	AudioSource audioSource;
+
+	[SerializeField] float ThrustForce = 15.0f;
+	[SerializeField] float TurnRate = 50.0f;
 
     // Start is called before the first frame update
     void Start()
     {
 		rigidBody = GetComponent<Rigidbody>();
+		audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-		ProcessInput();
+		Rotate();
     }
 
-	private void ProcessInput()
+	void FixedUpdate()
+	{
+		Thrust();
+	}
+
+	private void Thrust()
 	{
 		if (Input.GetKey(KeyCode.Space))
 		{
-			rigidBody.AddRelativeForce(Vector3.up * Force * Time.deltaTime);
+			rigidBody.AddRelativeForce(Vector3.up * ThrustForce);
+			if (audioSource.isPlaying == false)
+			{
+				audioSource.Play();
+			}
 		}
+		else
+		{
+			audioSource.Stop();
+		}
+	}
+
+	private void Rotate()
+	{
+		rigidBody.freezeRotation = true;
+
 		if (Input.GetKey(KeyCode.A))
 		{
 			transform.Rotate(Vector3.forward * TurnRate * Time.deltaTime);
@@ -36,5 +58,7 @@ public class RocketMovement : MonoBehaviour
 		{
 			transform.Rotate(-Vector3.forward * TurnRate * Time.deltaTime);
 		}
+
+		rigidBody.freezeRotation = false;
 	}
 }

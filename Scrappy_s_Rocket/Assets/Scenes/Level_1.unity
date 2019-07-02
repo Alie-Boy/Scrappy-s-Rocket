@@ -411,11 +411,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rocket Ship
       objectReference: {fileID: 0}
-    - target: {fileID: 5664039176085761470, guid: dc6116696c046c74d8d7802652e40718,
-        type: 3}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
     - target: {fileID: 5664039176085761471, guid: dc6116696c046c74d8d7802652e40718,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -470,14 +465,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1562870113, guid: dc6116696c046c74d8d7802652e40718, type: 3}
-      propertyPath: TurnRate
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 1562870113, guid: dc6116696c046c74d8d7802652e40718, type: 3}
-      propertyPath: ThrustForce
-      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc6116696c046c74d8d7802652e40718, type: 3}

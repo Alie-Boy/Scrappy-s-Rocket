@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
+	bool collisionsDisabled = false;
 
 	Rigidbody rigidBody;
 	AudioSource audioSource;
@@ -12,6 +13,7 @@ public class Rocket : MonoBehaviour
 
 	[SerializeField] float ThrustForce = 15.0f;
 	[SerializeField] float TurnRate = 50.0f;
+	[SerializeField] int nextLevelIndex = 0;
 
 	[SerializeField] AudioClip mainEngine;
 	[SerializeField] AudioClip levelCompleteJingle;
@@ -29,7 +31,7 @@ public class Rocket : MonoBehaviour
 
 	void OnCollisionEnter(Collision collision)
 	{
-		if (state != State.Alive) { return; }
+		if (state != State.Alive || collisionsDisabled) { return; }
 
 		switch (collision.gameObject.tag)
 		{
@@ -61,11 +63,22 @@ public class Rocket : MonoBehaviour
 
 	private void LoadNextScene()
 	{
-		SceneManager.LoadScene(1); // TODO: parameterize the level index
+		SceneManager.LoadScene(nextLevelIndex); // TODO: parameterize the level index
 	}
 
 	void Update()
-    {
+	{
+		if (Debug.isDebugBuild)
+		{ 
+			if (Input.GetKeyDown(KeyCode.N))
+			{
+				LoadNextScene();
+			}
+			else if (Input.GetKeyDown(KeyCode.C))
+			{
+				collisionsDisabled = !collisionsDisabled;
+			}
+		}
 		if (state == State.Alive)
 		{
 			Rotate();

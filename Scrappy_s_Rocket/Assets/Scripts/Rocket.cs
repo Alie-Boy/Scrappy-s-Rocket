@@ -8,12 +8,10 @@ public class Rocket : MonoBehaviour
 	Rigidbody rigidBody;
 	AudioSource audioSource;
 
-	enum State { Alive, Dying, Transcending };
-	State state = State.Alive;
+	bool isTransitioning = false;
 
 	[SerializeField] float ThrustForce = 15.0f;
 	[SerializeField] float TurnRate = 50.0f;
-	[SerializeField] int nextLevelIndex = 0;
 
 	[SerializeField] AudioClip mainEngine;
 	[SerializeField] AudioClip levelCompleteJingle;
@@ -31,14 +29,14 @@ public class Rocket : MonoBehaviour
 
 	void OnCollisionEnter(Collision collision)
 	{
-		if (state != State.Alive || collisionsDisabled) { return; }
+		if ( isTransitioning || collisionsDisabled ) { return; }
 
 		switch (collision.gameObject.tag)
 		{
 			case "Friendly":
 				break;
 			case "Finish":
-				state = State.Transcending;
+				isTransitioning = true;
 				audioSource.Stop();
 				audioSource.PlayOneShot(levelCompleteJingle);
 				mainEngineParticles.Stop();
@@ -46,7 +44,7 @@ public class Rocket : MonoBehaviour
 				Invoke("LoadNextScene", 1.0f);
 				break;
 			default:
-				state = State.Dying;
+				isTransitioning = true;
 				audioSource.Stop();
 				audioSource.PlayOneShot(DeathExplosion);
 				mainEngineParticles.Stop();
@@ -63,11 +61,17 @@ public class Rocket : MonoBehaviour
 
 	private void LoadNextScene()
 	{
+		int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+		int nextLevelIndex = (currentSceneIndex >= SceneManager.sceneCountInBuildSettings - 1) ? 0: ++currentSceneIndex;
 		SceneManager.LoadScene(nextLevelIndex); // TODO: parameterize the level index
 	}
 
 	void Update()
 	{
+		if (Input.GetKey(KeyCode.Escape))
+		{
+			Application.Quit();
+		}
 		if (Debug.isDebugBuild)
 		{ 
 			if (Input.GetKeyDown(KeyCode.N))
@@ -79,7 +83,7 @@ public class Rocket : MonoBehaviour
 				collisionsDisabled = !collisionsDisabled;
 			}
 		}
-		if (state == State.Alive)
+		if (isTransitioning == false)
 		{
 			Rotate();
 		}
@@ -87,7 +91,7 @@ public class Rocket : MonoBehaviour
 
 	void FixedUpdate()
 	{
-		if (state == State.Alive)
+		if (isTransitioning == false)
 		{
 			Thrust();
 		}
@@ -113,17 +117,21 @@ public class Rocket : MonoBehaviour
 
 	private void Rotate()
 	{
-		rigidBody.freezeRotation = true;
-
+		float frameIndependentTurnRate = TurnRate * Time.deltaTime;
 		if (Input.GetKey(KeyCode.A))
 		{
-			transform.Rotate(Vector3.forward * TurnRate * Time.deltaTime);
+			RotateManually(frameIndependentTurnRate);
 		}
 		else if (Input.GetKey(KeyCode.D))
 		{
-			transform.Rotate(-Vector3.forward * TurnRate * Time.deltaTime);
+			RotateManually(-frameIndependentTurnRate);
 		}
+	}
 
+	private void RotateManually(float frameIndependentTurnRate)
+	{
+		rigidBody.freezeRotation = true;
+		transform.Rotate(Vector3.forward * frameIndependentTurnRate);
 		rigidBody.freezeRotation = false;
 	}
 }
